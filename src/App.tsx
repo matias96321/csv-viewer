@@ -8,10 +8,8 @@ type objType = {
 }
 
 function App() {
-  const inputFile = require('./input_file.png')
   const [csv, setCsv] = useState<string[]>([])
   const [headers, setHeaders] = useState<string[]>([])
-  const [Tdlist, setTdlist] = useState([])
   
   const showFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) {return}
