@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 
 import './App.css';
 
-
 type objType = {
   [key: string]: number | undefined | Array<any> | string;
 }
@@ -12,81 +11,73 @@ function App() {
   const [headers, setHeaders] = useState<string[]>([])
   
   const showFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+
     if (!event.target.files) {return}
     
     if (event.target.files[0].type !== 'text/csv'){
-      return alert("Somente Arquivos csv")
-      }
+      return alert("CSV file only")
+    }
 
     event.preventDefault()
+
     const reader = new FileReader()
+
     reader.onload = async (e) => { 
       if (!e.target) {return}
 
-      const text = (e.target.result) as string
+      const csvText = (e.target.result) as string
 
-      let csvArray = csvToArray(text)
-      // console.log(csvArray);
+      let csvArray = csvToArray(csvText)
+
       setCsv(csvArray);
-
-      // handleCsv(array)
-
     };
     
     reader.readAsText(event.target.files[0])
   }
-
-  const csvToArray = (str: string, delimiter = ",") => {
+  
+  const csvToArray = (str: string, delimiter = /\s*,\s*/) => {
     
-    const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
-    
-    const headersss = str.slice(0, str.indexOf("\n"));
+    let headers = str.slice(0, str.indexOf("\n")).split(delimiter);
 
-    const resultadoArquivoCSV  = headersss.split(/\s*,\s*/)
+    setHeaders(headers)
 
-    setHeaders(resultadoArquivoCSV)
-    
-    // slice from \n index + 1 to the end of the text
-    // use split to create an array of each csv value row
     const rows = str.slice(str.indexOf("\n") + 1).split("\n");
 
-    // Map the rows
-    // split values from each row into an array
-    // use headers.reduce to create an object
-    // object properties derived from headers:values
-    // the object passed as an element of the array
     const arr = rows.map(function (row) {
+      
       const values = row.split(/,(?! )/);
+
       const el = headers.reduce(function (object: any, header, index) {
-        object[header] = values[index];
+
+        object[header] = values[index]; 
+        
         return object;
+      
       }, {});
       return el;
     });
-
     return arr;
   }
 
-  const rowToColum = (data: objType) => {
+  const addTableRow = (data: objType) => {
 
-    let dataA = []
+    let row = []
     
-    for (const [key, value ]  of Object.entries(data)) {
-      dataA.push(value);
+    for (const [, value ] of Object.entries(data)) {
+      row.push(value);
     }
-
+    
     return ( 
       <>
-        {dataA.map((item: any) => {
+        {row.map((item: any, index) => {
           return (
-            <td>{item}</td>
+            <td key={index}>{item}</td>
           )
         })}
-      </>
-        
+      </>   
     )
-}
-
+  }
+  
   return (
     <div className="App">
       <div className="btn-div" >
@@ -102,11 +93,10 @@ function App() {
           </thead>
           <tbody>
             {csv.map((item: {}, index: number) => {
-              let result = rowToColum(item)
               return (
                 <tr className='table-row'>
-                  <th>{index}</th>
-                  {result}
+                  <th>{index + 1}</th>
+                  {addTableRow(item)}
                 </tr>
                 )
               }
