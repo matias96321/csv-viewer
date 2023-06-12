@@ -1,64 +1,31 @@
 import React, {useState} from 'react';
-
+import {arrayIsEmpty, getTextFromFile , csvToArray} from './ultils'
 import './App.css';
 
 type objType = {
   [key: string]: number | undefined | Array<any> | string;
 }
 
+// type Filess = React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLLabelElement>
+
 function App() {
-  const [csv, setCsv] = useState<string[]>([])
+
+  const [rows, setRows] = useState<string[]>([])
   const [headers, setHeaders] = useState<string[]>([])
   
-  const showFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerFiles = async (file: File ) => {
 
-    if (!event.target.files) {return}
-    
-    if (event.target.files[0].type !== 'text/csv'){
-      return alert("CSV file only")
-    }
+    const text = await getTextFromFile(file)
 
-    event.preventDefault()
+    const { headers, rows } = csvToArray(text)
 
-    const reader = new FileReader()
-
-    reader.onload = async (e) => { 
-      if (!e.target) {return}
-
-      const csvText = (e.target.result) as string
-
-      let csvArray = csvToArray(csvText)
-
-      setCsv(csvArray);
-    };
-    
-    reader.readAsText(event.target.files[0])
-  }
-  
-  const csvToArray = (str: string, delimiter = /\s*,\s*/) => {
-    
-    let headers = str.slice(0, str.indexOf("\n")).split(delimiter);
-
+    setRows(rows);
     setHeaders(headers)
 
-    const rows = str.slice(str.indexOf("\n") + 1).split("\n");
-
-    const arr = rows.map(function (row) {
-      
-      const values = row.split(/,(?! )/);
-
-      const el = headers.reduce(function (object: any, header, index) {
-
-        object[header] = values[index]; 
-        
-        return object;
-      
-      }, {});
-      return el;
-    });
-    return arr;
   }
+  
 
+ 
   const addTableRow = (data: objType) => {
 
     let row = []
@@ -77,22 +44,52 @@ function App() {
       </>   
     )
   }
-  
+
+  const fileInputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    
+    event.preventDefault();
+
+    if (!event.target.files) {return}
+    
+    if (event.target.files[0].type !== 'text/csv'){
+      return alert("CSV file only")
+    }
+
+    const file = event.target.files[0]
+
+    return handlerFiles(file)
+
+  }
+
+  const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    const  file  = event.dataTransfer.files[0];
+    return handlerFiles(file)
+  }
+
+  const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+  };
+
   return (
-    <div className="App">
-      <div className="btn-div" >
-        <input type="file" onChange={(event) => showFile(event)} />
+    <div className={arrayIsEmpty(rows) ? 'App-init' : 'App'}> 
+      <div className="btn-div">
+        <label htmlFor="files" className="drop-container" onDrop={(e) => handleDrop(e)} onDragOver={ (e) => handleDragOver(e)}>
+          <span className="drop-title">Drop files here</span>
+            or
+          <input type="file" id="files" onChange={(event) => fileInputChangeHandler(event)}/>
+        </label>  
       </div>
       <div className="table-div">
         <table className="table">
           <thead className='headers'>
             <tr>
-              {csv[0] ? <th className='title-header-empty'></th>: null}
               {headers.map(head => <th className='title-headers'>{head}</th>)}
+              {rows[0] ? <th className='title-header-empty'></th>: null}
             </tr>
           </thead>
           <tbody>
-            {csv.map((item: {}, index: number) => {
+            {rows.map((item: {}, index: number) => {
               return (
                 <tr className='table-row'>
                   <th>{index + 1}</th>
