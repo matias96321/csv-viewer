@@ -1,0 +1,43 @@
+
+.App .table-div {
+  
+    font-size: 13px;
+    font-weight: 400;
+    color: #373737;
+    
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Helvetica Neue,Arial,sans-serif;
+  }
+  .App .table-div table .headers{
+    height: 30px;
+   
+    position: sticky;
+    top: 0px;
+    background-color: #f0f0f0;
+    color: #222;
+    font-weight: 400;
+  }
+  
+  .App .table-div table th {
+    background-color: #f0f0f0;
+  }
+  
+  .App .table-div table td, tr, th {
+    padding: 0 4px;
+    line-height: 21px;
+    overflow: hidden;
+    outline-width: 0;
+  
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    empty-cells: show;
+  }
+  
+  
+  .App .table-div table .headers .title-headers{
+    min-width: 60px;
+    height: 30px;
+  }
+  
+  .App .table-div table .title-header-empty {
+    min-width: 50px;
+  }

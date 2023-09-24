@@ -1,74 +1,46 @@
-import React, {useState, useEffect } from 'react';
-import {arrayIsEmpty, getTextFromFile , csvToArray} from './ultils'
+import React, {useState} from 'react';
+import {arrayIsEmpty, csvTextToHeaderAndRows, createRows, delay, getTextFromFile } from './ultils'
 import './App.css';
 import DropFile from './DropFile';
-
-type objType = {
-  [key: string]: number | undefined | Array<any> | string;
-}
-
-// type Filess = React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLLabelElement>
+import Table from './Table';
+import Loader from './Loader';
 
 function App() {
 
-  const [rows, setRows] = useState<string[]>([])
+  const [rows, setRows] = useState<string[][]>([])
   const [headers, setHeaders] = useState<string[]>([])
-  
-  const handlerFiles = async (file: File ) => {
+  const [isLoading, setIsLoading] = useState(false);
 
-    const text = await getTextFromFile(file);
-
-    const { headers, rows } = csvToArray(text);
-
-    setRows(rows);
-
+  const csvTextToData = async (text: string ) => {
+    const { headers, rows } =  csvTextToHeaderAndRows(text);
+    setRows(createRows(rows));
     setHeaders(headers);
-
   }
 
-  const addTableRow = (data: objType) => {
-
-    let row = []
-    
-    for (const [, value ] of Object.entries(data)) {
-      row.push(value);
+  const handleFile = async (file: File ) => {
+    try {
+      setIsLoading(true)
+      await delay(2000);
+      const text = await getTextFromFile(file);
+      setIsLoading(false);
+      return csvTextToData(text)
+    } catch (error) {
+      setIsLoading(false);
     }
-    
-    return ( 
-      <>
-        {row.map((item: any, index) => {
-          return (
-            <td key={index}>{item}</td>
-          )
-        })}
-      </>   
-    )
   }
+  
+  // if (isLoading) {
+  //   return <div className='App-init'><Loader /></div>
+  // }
 
   return (
-    <div className={arrayIsEmpty(rows) ? 'App-init' : 'App'}> 
-      <DropFile handlerFiles={handlerFiles} />
-      <div className="table-div">
-        <table className="table">
-          <thead className='headers'>
-            <tr>
-              {headers.map(head => <th className='title-headers'>{head}</th>)}
-              {rows[0] ? <th className='title-header-empty'></th>: null}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((item: {}, index: number) => {
-              return (
-                <tr className='table-row'>
-                  <th>{index + 1}</th>
-                  {addTableRow(item)}
-                </tr>
-                )
-              }
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div className={ arrayIsEmpty(rows) ? 'App-init' : 'App' }>
+      {isLoading && <div className={'App-init'}><Loader /></div>} 
+      <div hidden={isLoading}>
+        <DropFile handleFile={handleFile}/>  
+        <Table csv={{rows, headers}}/>
+      </div>  
+      
     </div>
   );
 }
