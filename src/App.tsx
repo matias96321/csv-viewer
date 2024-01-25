@@ -4,7 +4,7 @@ import './App.css';
 import DropFile from './DropFile';
 import Table from './Table';
 import Loader from './Loader';
-
+import ScrollButton from './ScrollButton'
 function App() {
 
   const [rows, setRows] = useState<string[][]>([])
@@ -34,14 +34,16 @@ function App() {
   // }
 
   return (
-    <div className={ arrayIsEmpty(rows) ? 'App-init' : 'App' }>
-      {isLoading && <div className={'App-init'}><Loader /></div>} 
-      <div hidden={isLoading}>
-        <DropFile handleFile={handleFile}/>  
-        <Table csv={{rows, headers}}/>
-      </div>  
-      
-    </div>
+    <>
+      <div className={ arrayIsEmpty(rows) ? 'App-init' : 'App' }>
+        {isLoading && <div className={'App-init'}><Loader /></div>} 
+        <div hidden={isLoading}>
+          <DropFile handleFile={handleFile}/>  
+          <Table csv={{rows, headers}}/>
+          <ScrollButton/>
+        </div>  
+      </div>
+    </>
   );
 }
 
