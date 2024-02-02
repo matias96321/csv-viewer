@@ -34,18 +34,17 @@ function Table(propsTable: TableData){
             return headers.map(head => <th className='title-headers'>{head}</th>)
         }
 
-
         return (
             <div className="table-div">
                 <table className="table">
                     <thead className='headers'>
                         <tr>
-                        {rows[0] ? <th className='title-header-empty'></th>: null}
-                        {renderHeader(headers)}
+                            {rows[0] ? <th className='title-header-empty'>#</th>: null}
+                            {renderHeader(headers)}
                         </tr>
                     </thead>
                     <tbody>
-                    {renderTableBody(rows)}
+                        {renderTableBody(rows)}
                     </tbody>
                 </table>
             </div>
